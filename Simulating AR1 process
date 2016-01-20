@@ -47,3 +47,4 @@ return(fullsum)
 
 #Example
 SimAR <- simAR1(0,.8,.02)
+SimAR <- simAR1(0,.85,.3)
