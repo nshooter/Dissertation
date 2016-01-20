@@ -1,0 +1,49 @@
+## Simulating AR1 process ##
+## R(t) = alpha + beta*R(t-1) + error(t) ##
+## error(t) ~ N(0, sigma)   ##
+## Required no external package ##
+## Most Sophisticated till NOW ##
+
+simAR1 <- function(alpha, beta, sigma, N=100, plot=TRUE) {
+if(abs(beta) >= 1) {
+message("abs(beta)<1")
+stop("Hence simulated Process is not Stationary")
+            }
+if(beta==0){
+message("Both AR and Non AR are same")
+ }
+
+mu <- alpha/(1-beta)
+var <- sigma^2/(1-beta)
+stderr <- rnorm(N)
+Uncorar <- mu+stderr*var^(.5)  # Non AR process
+AR1 <- rep(0,N)  #object that will be used to store simulated value
+AR1[1] <- Uncorar[1]
+for(i in 2:N) {
+AR1[i] <- alpha + beta*AR1[i-1] + stderr[i]*sigma
+           }
+MeanAR <- mean(AR1)
+VarAR <- var(AR1)
+MeanNor <- mean(Uncorar)
+VarNor <- var(Uncorar)
+Summary <- rbind(MeanAR, VarAR, MeanNor, VarNor)
+Simulated <- data.frame(AR=AR1, Normal=Uncorar)
+fullsum <-  list(summary=Summary, simulated=Simulated)
+if(plot) {
+par(mfcol=c(3,2))
+plot(AR1, type="l", xlab="Time", ylab="r_t", main="Simulated AR(1) Precess")
+abline(h=mu, lty=3)
+plot(AR1[-N]~AR1[-1], xlab="r_{t-1}", ylab="r_t")
+abline(lm(AR1[-N]~AR1[-1]))
+acf(AR1)
+plot(Uncorar, type="l",xlab="Time", ylab="r_t", main="Simulated White Noise Process")
+abline(h=mu, lty=3)
+plot(Uncorar[-N]~Uncorar[-1], xlab="r_{t-1}", ylab="r_t")
+abline(h=mu)
+acf(Uncorar)
+           }
+return(fullsum)
+                   }
+
+#Example
+SimAR <- simAR1(0,.8,.02)
